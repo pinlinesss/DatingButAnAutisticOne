@@ -4,6 +4,13 @@ using UnityEngine.UI;
 
 public class BeatManager : MonoBehaviour
 {
+    [Header("Player References")]
+    public HealthSystem playerHealth;
+    public GridPlayerController playerMovement;
+
+    [Header("Pattern Manager Reference")]
+    public PatternManager patternManager;
+
     [Header("Sprite References")]
     public Sprite beatBosSprite;
     public Sprite beat1Sprite;
@@ -20,10 +27,6 @@ public class BeatManager : MonoBehaviour
 
     [Header("Rhythm Settings")]
     public float beatInterval = 0.5f;
-
-    [Header("Enemy Test References")]
-    public RedEnemy activeRedEnemy;
-    public Vector2Int testPlayerGridPos = new Vector2Int(0, 0);
 
     private int currentBeat = 0;
 
@@ -55,55 +58,57 @@ public class BeatManager : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        beatImage1.sprite = beatBosSprite;
-        beatImage2.sprite = beatBosSprite;
-        beatImage3.sprite = beatBosSprite;
-        screenImage.sprite = ekranBosSprite;
+        if (beatImage1 != null) beatImage1.sprite = beatBosSprite;
+        if (beatImage2 != null) beatImage2.sprite = beatBosSprite;
+        if (beatImage3 != null) beatImage3.sprite = beatBosSprite;
+        if (screenImage != null) screenImage.sprite = ekranBosSprite;
 
         switch (currentBeat)
         {
             case 1:
-                beatImage1.sprite = beat1Sprite;
+                if (beatImage1 != null) beatImage1.sprite = beat1Sprite;
                 break;
             case 2:
-                beatImage2.sprite = beat2Sprite;
+                if (beatImage2 != null) beatImage2.sprite = beat2Sprite;
                 break;
             case 3:
-                beatImage3.sprite = beat3Sprite;
+                if (beatImage3 != null) beatImage3.sprite = beat3Sprite;
                 break;
             case 4:
-                screenImage.sprite = ekranPampumSprite;
+                if (screenImage != null) screenImage.sprite = ekranPampumSprite;
                 break;
         }
     }
 
     private void TriggerAttackEvents()
     {
-        if (activeRedEnemy == null) return;
+        if (patternManager == null) return;
 
         switch (currentBeat)
         {
             case 1:
-                // 1) 4 kenardan birini rastgele seç (0: Top, 1: Bottom, 2: Left, 3: Right)
-                RedEnemy.SpawnSide randomSide = (RedEnemy.SpawnSide)Random.Range(0, 4);
-
-                // 2) 0-3 arası rastgele şerit seç
-                int randomLine = Random.Range(0, 4);
-
-                activeRedEnemy.InitializeEnemy(randomSide, randomLine); 
-                Debug.Log($"Beat 1: Kırmızı Düşman {randomSide} kenarında, {randomLine + 1}. hatta belirdi!");
+                // Beat 1: Yeni pattern seçilir, düşmanlar sahneye konur (Işınlar kapalı)
+                patternManager.SpawnRandomPattern();
                 break;
 
             case 2:
-                activeRedEnemy.OnBeat2_EnemyShake();
-                break;
-
             case 3:
-                activeRedEnemy.OnBeat3_GroundShake();
+                // Beat 2 ve 3: Şarj ışığı yanar
+                patternManager.ChargeAllEnemies();
                 break;
 
             case 4:
-                bool playerKilled = activeRedEnemy.OnBeat4_ExecuteAttack(testPlayerGridPos);
+                // Beat 4: Saldırı ışını patlar ve vurup vurmadığını kontrol eder
+                if (playerMovement != null)
+                {
+                    Vector2Int gridPosition = playerMovement.currentGridPos;
+                    bool isHit = patternManager.ExecuteAllAttacks(gridPosition);
+
+                    if (isHit && playerHealth != null)
+                    {
+                        playerHealth.TakeDamage(1);
+                    }
+                }
                 break;
         }
     }

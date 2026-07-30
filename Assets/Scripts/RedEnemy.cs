@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class RedEnemy : MonoBehaviour
@@ -7,105 +6,110 @@ public class RedEnemy : MonoBehaviour
 
     [Header("Enemy State")]
     public SpawnSide currentSide;
-    [Range(0, 3)] public int lineIndex; // 0, 1, 2 veya 3. hat/şerit
+    public int lineIndex; // 0, 1, 2, 3
 
-    [Header("Grid Coordinate Positions")]
-    // 4 Sütunun X pozisyonları (En soldan en sağa)
-    public float[] columnXPositions = new float[4] { -1.5f, -0.5f, 0.5f, 1.5f };
-    // 4 Satırın Y pozisyonları (En alttan en üste)
-    public float[] rowYPositions = new float[4] { -1.5f, -0.5f, 0.5f, 1.5f };
+    [Header("Distance & Movement")]
+    public float offsetFromEdge = 1.5f;
 
-    [Header("Outer Boundary Offsets")]
-    public float topY = 3.5f;    // Üstteki düşmanların duracağı Y
-    public float bottomY = -3.5f; // Alttaki düşmanların duracağı Y
-    public float leftX = -3.5f;  // Soldaki düşmanların duracağı X
-    public float rightX = 3.5f;  // Sağdaki düşmanların duracağı X
+    [Header("Grid References")]
+    public float[] columnXPositions = new float[4] { -2.5f, -0.5f, 1.5f, 3.5f };
+    public float[] rowYPositions = new float[4] { -2.5f, -0.5f, 1.5f, 3.5f };
 
-    private bool[,] dangerGrid = new bool[4, 4];
+    [Header("Beam Effects (Visuals)")]
+    public GameObject chargeBeamObject;
+    public GameObject attackBeamObject;
+
+    private void Start()
+    {
+        ResetBeams();
+    }
 
     /// <summary>
-    /// Beat 1: Düşmanın kenarını, hattını belirler, rotasyonunu çeker ve matrisi doldurur.
+    /// Beat 1: Düşmanı yeni konuma koyar ve ışınları kapatır.
     /// </summary>
-    public void InitializeEnemy(SpawnSide side, int index)
+    public void SetupPosition(SpawnSide side, int line)
     {
-        currentSide = side;
-        lineIndex = Mathf.Clamp(index, 0, 3);
+        ResetBeams();
 
-        CalculateDangerZone();
+        currentSide = side;
+        lineIndex = Mathf.Clamp(line, 0, 3);
         SetPositionAndRotation();
     }
 
-    [Header("Distance From Grid Edge")]
-    [Tooltip("Grid karelerinden dışarı kaçma mesafesi. Nesne karelere biniyorsa bu değeri büyüt.")]
-    public float offsetFromEdge = 2.2f;
-
     private void SetPositionAndRotation()
     {
-        float firstX = columnXPositions[0]; // En sol sütun X
-        float lastX = columnXPositions[3];  // En sağ sütun X
-        float firstY = rowYPositions[0];    // En alt satır Y
-        float lastY = rowYPositions[3];     // En üst satır Y
+        float firstX = columnXPositions[0];
+        float lastX = columnXPositions[3];
+        float firstY = rowYPositions[0];
+        float lastY = rowYPositions[3];
 
         switch (currentSide)
         {
             case SpawnSide.Top:
-                // Üstte: Tam aşağı bakacak
                 transform.position = new Vector3(columnXPositions[lineIndex], lastY + offsetFromEdge, 0f);
                 transform.rotation = Quaternion.Euler(0, 0, 0f);
                 break;
 
             case SpawnSide.Bottom:
-                // Altta: Tam yukarı bakacak
                 transform.position = new Vector3(columnXPositions[lineIndex], firstY - offsetFromEdge, 0f);
                 transform.rotation = Quaternion.Euler(0, 0, 180f);
                 break;
 
             case SpawnSide.Left:
-                // Solda: Sağa bakacak (90 derece)
                 transform.position = new Vector3(firstX - offsetFromEdge, rowYPositions[lineIndex], 0f);
-                transform.rotation = Quaternion.Euler(0, 0, 90f);
+                transform.rotation = Quaternion.Euler(0, 0, 90f); // İçe doğru bakar
                 break;
 
             case SpawnSide.Right:
-                // Sağda: Sola bakacak (-90 derece)
+                // DÜZELTME 1: Çıkarma (-) değil Ekleme (+) yapıyoruz ki sağ kenarın DIŞINA çıksın.
+                // DÜZELTME 2: Açıyı 270 veya -90 yerine 90 yapıp yüzünü sola (içe) çeviriyoruz.
                 transform.position = new Vector3(lastX + offsetFromEdge, rowYPositions[lineIndex], 0f);
                 transform.rotation = Quaternion.Euler(0, 0, -90f);
                 break;
         }
     }
 
-    public void OnBeat2_EnemyShake()
+    /// <summary>
+    /// Beat 2 ve 3: Şarj ışığını açar
+    /// </summary>
+    public void OnBeat_Charge()
     {
-        Debug.Log($"[Kırmızı Düşman] Beat 2: Titriyor! (Kenar: {currentSide}, Hat: {lineIndex})");
+        if (chargeBeamObject != null) chargeBeamObject.SetActive(true);
+        if (attackBeamObject != null) attackBeamObject.SetActive(false);
     }
 
-    public void OnBeat3_GroundShake()
-    {
-        Debug.Log("[Kırmızı Düşman] Beat 3: Yer sallanıyor!");
-    }
-
+    /// <summary>
+    /// Beat 4: Saldırı ışınını açar ve vuruş kontrolü yapar
+    /// </summary>
     public bool OnBeat4_ExecuteAttack(Vector2Int playerGridPos)
     {
-        Debug.Log("<color=red>[Kırmızı Düşman] BEAT 4: LAZER PATLADI!</color>");
-        return dangerGrid[playerGridPos.x, playerGridPos.y];
+        if (chargeBeamObject != null) chargeBeamObject.SetActive(false);
+        if (attackBeamObject != null) attackBeamObject.SetActive(true);
+
+        bool isHit = false;
+
+        switch (currentSide)
+        {
+            case SpawnSide.Top:
+            case SpawnSide.Bottom:
+                if (playerGridPos.x == lineIndex) isHit = true;
+                break;
+
+            case SpawnSide.Left:
+            case SpawnSide.Right:
+                if (playerGridPos.y == lineIndex) isHit = true;
+                break;
+        }
+
+        return isHit;
     }
 
-    private void CalculateDangerZone()
+    /// <summary>
+    /// Tüm ışınları tamamen kapatır
+    /// </summary>
+    public void ResetBeams()
     {
-        System.Array.Clear(dangerGrid, 0, dangerGrid.Length);
-
-        for (int i = 0; i < 4; i++)
-        {
-            if (currentSide == SpawnSide.Top || currentSide == SpawnSide.Bottom)
-            {
-                // Dikey Saldırı: 'lineIndex' sütununun tamamı tehlikeli
-                dangerGrid[lineIndex, i] = true;
-            }
-            else // Left veya Right
-            {
-                // Yatay Saldırı: 'lineIndex' satırının tamamı tehlikeli
-                dangerGrid[i, lineIndex] = true;
-            }
-        }
+        if (chargeBeamObject != null) chargeBeamObject.SetActive(false);
+        if (attackBeamObject != null) attackBeamObject.SetActive(false);
     }
 }
