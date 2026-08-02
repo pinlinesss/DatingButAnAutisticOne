@@ -2,14 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Düşmanın tipini seçmek için (Kırmızı mı Mavi mi?)
-public enum EnemyType { Red, Blue }
+public enum EnemyType { Red, Blue, Green } // Green eklendi
 
 [System.Serializable]
 public struct EnemySpawnData
 {
-    public EnemyType enemyType; // Kırmızı mı Mavi mi?
-    public RedEnemy.SpawnSide side; // Hangi kenar?
-    public int lineIndex; // 0, 1, 2, 3
+    public EnemyType enemyType;
+    public RedEnemy.SpawnSide side; // Kırmızı ve Mavi için
+    public GreenEnemy.SpawnCorner corner; // Yeşil için köşe seçimi!
+    public int lineIndex;
 }
 
 [System.Serializable]
@@ -23,9 +24,9 @@ public struct Pattern
 public class PatternManager : MonoBehaviour
 {
     [Header("Enemies in Scene")]
-    public List<RedEnemy> redEnemies;   // Sahnedeki Kırmızı Düşman Havuzu
-    public List<BlueEnemy> blueEnemies; // Sahnedeki Mavi Düşman Havuzu
-
+    public List<RedEnemy> redEnemies;
+    public List<BlueEnemy> blueEnemies;
+    public List<GreenEnemy> greenEnemies; // Yeşil Düşman havuzu!
     [Header("Pattern Pool")]
     public List<Pattern> patternPool = new List<Pattern>();
 
@@ -53,6 +54,15 @@ public class PatternManager : MonoBehaviour
             }
         }
 
+        foreach (var green in greenEnemies)
+        {
+            if (green != null)
+            {
+                green.ResetEffects();
+                green.gameObject.SetActive(false);
+            }
+        }
+
         // 2. SADECE AKTİF (TİK ATILMIŞ) PATTERN'LERİ LİSTEYE TOPLA
         List<Pattern> activePatterns = new List<Pattern>();
         foreach (var pattern in patternPool)
@@ -72,6 +82,7 @@ public class PatternManager : MonoBehaviour
 
         int currentRedIndex = 0;
         int currentBlueIndex = 0;
+        int currentGreenIndex = 0;
 
         // 4. Seçilen pattern'ı sahneye yerleştir (Aynı kalıyor)
         foreach (var spawnData in selectedPattern.activeEnemies)
@@ -99,6 +110,16 @@ public class PatternManager : MonoBehaviour
                     currentBlueIndex++;
                 }
             }
+            else if (spawnData.enemyType == EnemyType.Green)
+            {
+                if (currentGreenIndex < greenEnemies.Count && greenEnemies[currentGreenIndex] != null)
+                {
+                    GreenEnemy green = greenEnemies[currentGreenIndex];
+                    green.gameObject.SetActive(true);
+                    green.SetupPosition(spawnData.corner);
+                    currentGreenIndex++;
+                }
+            }
         }
     }
     /// <summary>
@@ -115,31 +136,51 @@ public class PatternManager : MonoBehaviour
         {
             if (blue != null && blue.gameObject.activeSelf) blue.OnBeat_Charge();
         }
+
+        foreach (var green in greenEnemies)
+        {
+            if (green != null && green.gameObject.activeSelf)
+            {
+                green.OnBeat_Charge();
+            }
+        }
     }
 
     /// <summary>
     /// Beat 4: Tüm aktif düşmanlar aynı anda saldırır
     /// </summary>
-    public bool ExecuteAllAttacks(Vector2Int playerGridPos)
+    public bool ExecuteAllAttacks(Vector2Int playerPos)
+{
+    // EN BAŞA BU SATIRI EKLİYORUZ (Değişkeni tanımlıyoruz)
+    bool hit = false; 
+
+    // Kırmızı Düşmanlar
+    foreach (var red in redEnemies)
     {
-        bool hitPlayer = false;
-
-        foreach (var red in redEnemies)
+        if (red != null && red.gameObject.activeSelf)
         {
-            if (red != null && red.gameObject.activeSelf)
-            {
-                if (red.OnBeat4_ExecuteAttack(playerGridPos)) hitPlayer = true;
-            }
+            if (red.OnBeat4_ExecuteAttack(playerPos)) hit = true;
         }
-
-        foreach (var blue in blueEnemies)
-        {
-            if (blue != null && blue.gameObject.activeSelf)
-            {
-                if (blue.OnBeat4_ExecuteAttack(playerGridPos)) hitPlayer = true;
-            }
-        }
-
-        return hitPlayer;
     }
+
+    // Mavi Düşmanlar
+    foreach (var blue in blueEnemies)
+    {
+        if (blue != null && blue.gameObject.activeSelf)
+        {
+            if (blue.OnBeat4_ExecuteAttack(playerPos)) hit = true;
+        }
+    }
+
+    // Yeşil Düşmanlar
+    foreach (var green in greenEnemies)
+    {
+        if (green != null && green.gameObject.activeSelf)
+        {
+            if (green.OnBeat4_ExecuteAttack(playerPos)) hit = true;
+        }
+    }
+
+    return hit;
+}
 }
