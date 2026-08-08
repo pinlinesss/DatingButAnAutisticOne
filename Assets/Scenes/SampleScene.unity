@@ -659,7 +659,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25882354, g: 0.10980392, b: 0.25490198, a: 1}
+  m_Color: {r: 0.9960785, g: 0.08235294, b: 0.5058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -684,6 +684,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 159703890}
   m_CullTransparentMesh: 1
+--- !u!1 &166870135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 166870136}
+  m_Layer: 0
+  m_Name: DialogueThings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &166870136
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166870135}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 95.87333, y: 113.31731, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1876306119}
+  - {fileID: 1841979852}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &231262652
 GameObject:
   m_ObjectHideFlags: 0
@@ -2749,7 +2782,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.09803922, g: 0.007843138, b: 0.047058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3662,7 +3695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.11435461, g: 0.6080881, b: 0.61635214, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3737,7 +3770,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.836478, g: 0.28671715, b: 0.4905779, a: 1}
+  m_Color: {r: 0.2, g: 0.019607844, b: 0.09803922, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4465,7 +4498,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25490198, g: 0.10980393, b: 0.24705884, a: 1}
+  m_Color: {r: 0.9921569, g: 0.08235294, b: 0.5058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4863,7 +4896,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25490198, g: 0.10980393, b: 0.24705884, a: 1}
+  m_Color: {r: 0.9921569, g: 0.08235294, b: 0.5058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6048,6 +6081,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1835795381}
   m_CullTransparentMesh: 1
+--- !u!1 &1841979851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1841979852}
+  - component: {fileID: 1841979853}
+  m_Layer: 0
+  m_Name: LevelDialogue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1841979852
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841979851}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 95.315254, y: 17.529663, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 166870136}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1841979853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841979851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7783c03c2c64f9a409bf86badaddd22f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
+  dialogueList:
+  - speaker: 0
+    speakerSprite: {fileID: 8175298072721991009, guid: 0824e203c4388f94ba34e90bd68690f4, type: 3}
+    sentence: '*Glue...'
+  - speaker: 0
+    speakerSprite: {fileID: 5569816598534277021, guid: cac873d68d7815e4f9530409d8900a78, type: 3}
+    sentence: '*JARONA!!!
+
+'
+  - speaker: 1
+    speakerSprite: {fileID: 4964038121679706060, guid: c1f9d754ac8339d47bf02517427bfef4, type: 3}
+    sentence: '*Bro what''s even that mean?!
+
+'
+  - speaker: 0
+    speakerSprite: {fileID: 5569816598534277021, guid: cac873d68d7815e4f9530409d8900a78, type: 3}
+    sentence: '*Ur dad is my best friend!'
+  - speaker: 0
+    speakerSprite: {fileID: -6001528616681116019, guid: 0004f966ac9d25e43949c147dab617d2, type: 3}
+    sentence: '*BRO TF''!!!'
 --- !u!1 &1876306117
 GameObject:
   m_ObjectHideFlags: 0
@@ -6077,11 +6174,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d144bf7f3fdebb342a34079bb8db3e93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
-  dialogueBox: {fileID: 0}
-  sakizImage: {fileID: 0}
-  playerImage: {fileID: 0}
-  speakerNameText: {fileID: 0}
-  dialogueText: {fileID: 0}
+  dialogueBox: {fileID: 840220077}
+  gumImage: {fileID: 1144779762}
+  playerImage: {fileID: 2051239851}
+  speakerNameText: {fileID: 491217092}
+  dialogueText: {fileID: 1177416678}
   typingSpeed: 0.03
 --- !u!4 &1876306119
 Transform:
@@ -6091,12 +6188,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1876306117}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 199.02803, y: 122.64995, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 103.1547, y: 9.332642, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 166870136}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1940646450
 GameObject:
@@ -6640,7 +6737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25882354, g: 0.109803915, b: 0.25280458, a: 1}
+  m_Color: {r: 1, g: 0.09803922, b: 0.5058824, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6699,7 +6796,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 146.039, y: -250.539}
+  m_AnchoredPosition: {x: 146.039, y: -270.539}
   m_SizeDelta: {x: 162.922, y: 162.922}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2051239851
@@ -6715,7 +6812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.140916, g: 0.78616345, b: 0.41023806, a: 1}
+  m_Color: {r: 0.2, g: 0.019607844, b: 0.09803922, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6919,4 +7016,4 @@ SceneRoots:
   - {fileID: 1304545497}
   - {fileID: 848683561}
   - {fileID: 1581066593}
-  - {fileID: 1876306119}
+  - {fileID: 166870136}
