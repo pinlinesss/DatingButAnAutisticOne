@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+
+
 public class GameOverSequence : MonoBehaviour
 {
     [Header("Paneller ve Elemanlar")]
@@ -18,21 +20,25 @@ public class GameOverSequence : MonoBehaviour
     public float fadeDuration = 0.8f;    // Kararma süresi
     public float timeBetweenSteps = 0.5f; // Elemanlar arası geliş süresi
 
+
+
     private void Start()
     {
-        // Başlangıçta hepsini gizle
+        // Objenin SetActive'ini kapatmıyoruz! 
+        // Sadece ekranı tamamen görünmez yapıp tıklamaları engelliyoruz.
         if (gameOverCanvasGroup != null)
         {
             gameOverCanvasGroup.alpha = 0f;
-            gameOverCanvasGroup.gameObject.SetActive(false);
+            gameOverCanvasGroup.interactable = false;
+            gameOverCanvasGroup.blocksRaycasts = false;
         }
-        
-        gameOverTitle.SetActive(false);
-        puppetCharacter.SetActive(false);
-        sakizContainer.SetActive(false);
-        buttonsContainer.SetActive(false);
-    }
 
+        // İç elemanları başlangıçta gizle
+        if (gameOverTitle != null) gameOverTitle.SetActive(false);
+        if (puppetCharacter != null) puppetCharacter.SetActive(false);
+        if (sakizContainer != null) sakizContainer.SetActive(false);
+        if (buttonsContainer != null) buttonsContainer.SetActive(false);
+    }
     // Karakterin son canı bittiğinde bu fonksiyon çağrılacak
     public void StartGameOverSequence()
     {
@@ -41,35 +47,44 @@ public class GameOverSequence : MonoBehaviour
 
     private IEnumerator GameOverRoutine()
     {
-        // 1. Aşama: Karakter ölünce oyun 1 saniyeliğine donar/duraksar
+        // 1. Aşama: Karakter ölünce 1 saniye donma/bekleme
         yield return new WaitForSeconds(delayBeforeFade);
 
-        // 2. Aşama: Ekran Kararır
-        gameOverCanvasGroup.gameObject.SetActive(true);
+        // Tıklamaları ve görünürlüğü aç
+        if (gameOverCanvasGroup != null)
+        {
+            gameOverCanvasGroup.interactable = true;
+            gameOverCanvasGroup.blocksRaycasts = true;
+        }
+
+        // 2. Aşama: Ekran Yavaşça Kararır (Alpha 0 -> 1)
         float elapsedTime = 0f;
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            gameOverCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeDuration);
+            if (gameOverCanvasGroup != null)
+            {
+                gameOverCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeDuration);
+            }
             yield return null;
         }
-        gameOverCanvasGroup.alpha = 1f;
+        if (gameOverCanvasGroup != null) gameOverCanvasGroup.alpha = 1f;
 
         yield return new WaitForSeconds(timeBetweenSteps);
 
-        // 3. Aşama: "GAME OVER" ve Sağdaki Baygın Karakter Görünür
-        gameOverTitle.SetActive(true);
-        puppetCharacter.SetActive(true);
+        // 3. Aşama: GAME OVER ve Baygın Karakter Görünür
+        if (gameOverTitle != null) gameOverTitle.SetActive(true);
+        if (puppetCharacter != null) puppetCharacter.SetActive(true);
 
         yield return new WaitForSeconds(timeBetweenSteps + 0.3f);
 
-        // 4. Aşama: Sakız Portresi ve Konuşması Gelir
-        sakizContainer.SetActive(true);
+        // 4. Aşama: Sakız Portresi ve Konuşması Belirir
+        if (sakizContainer != null) sakizContainer.SetActive(true);
 
         yield return new WaitForSeconds(timeBetweenSteps + 0.5f);
 
-        // 5. Aşama: "AYAĞA KALK" ve "YAT GİTSİN" Butonları Belirir
-        buttonsContainer.SetActive(true);
+        // 5. Aşama: AYAĞA KALK / YAT GİTSİN Butonları Açılır
+        if (buttonsContainer != null) buttonsContainer.SetActive(true);
     }
 
     // Buton Fonksiyonları

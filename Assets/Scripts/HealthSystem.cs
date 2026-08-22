@@ -15,7 +15,7 @@ public class HealthSystem : MonoBehaviour
     private void Start()
     {
         currentHealth = maxHealth;
-        
+
         if (healthUI != null)
         {
             healthUI.UpdateHealthUI(currentHealth);
@@ -61,8 +61,25 @@ public class HealthSystem : MonoBehaviour
     {
         isDead = true;
         Debug.Log("<color=red>[Karakter] MEH ÖLDÜN BE DOSTUM!!! </color>");
-        
-        // Karakteri gizle veya ölüm paneli açılana kadar hareketsiz kıl
-        gameObject.SetActive(false);
+
+        // "IncludeInactive.Include" parametresi sahnede kapalı duran GameOverSequence objelerini de bulur!
+        GameOverSequence gameOverSequence = FindFirstObjectByType<GameOverSequence>(FindObjectsInactive.Include);
+
+        if (gameOverSequence != null)
+        {
+            gameOverSequence.StartGameOverSequence();
+        }
+        else
+        {
+            Debug.LogError("Sahnede GameOverSequence script'i bulunamadı!");
+        }
+
+        // 2. Karakteri yok etmek yerine sadece Sprite/Collider'ını kapat
+        // (Böylece üzerindeki kodlar veya Coroutine'ler patlamaz)
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = false;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
     }
 }
