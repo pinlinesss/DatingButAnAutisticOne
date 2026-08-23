@@ -23,6 +23,9 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI speakerNameText;
     public TextMeshProUGUI dialogueText;
 
+    [Header("GameOver Özel Ayarı")]
+    public GameObject buttonsContainer; // EKLENDİ: Butonları içeren kapsayıcı
+
     [Header("Ayar")]
     public float typingSpeed = 0.03f; // Daktilo hızı
 
@@ -34,6 +37,12 @@ public class DialogueManager : MonoBehaviour
     {
         dialogueBox.SetActive(true);
         linesQueue.Clear();
+
+        // Diyalog başladığında butonlar bağlıysa gizle
+        if (buttonsContainer != null)
+        {
+            buttonsContainer.SetActive(false);
+        }
 
         foreach (DialogueLine line in dialogueList)
         {
@@ -51,6 +60,9 @@ public class DialogueManager : MonoBehaviour
             StopAllCoroutines();
             dialogueText.text = currentSentence;
             isTyping = false;
+
+            // Tıklayıp metni anında bitirdiğinde de butonları görünür yap
+            CheckButtonsAfterText();
             return;
         }
 
@@ -99,6 +111,18 @@ public class DialogueManager : MonoBehaviour
         }
 
         isTyping = false;
+
+        // EKLENDİ: Harf harf yazma bittiğinde çalışır
+        CheckButtonsAfterText();
+    }
+
+    // EKLENDİ: Yazı bittiğinde eğer kuyrukta başka cümle kalmadıysa butonları açar
+    private void CheckButtonsAfterText()
+    {
+        if (buttonsContainer != null && linesQueue.Count == 0)
+        {
+            buttonsContainer.SetActive(true);
+        }
     }
 
     void EndDialogue()
@@ -109,7 +133,7 @@ public class DialogueManager : MonoBehaviour
 
     void Update()
     {
-        // Ekra veya Space'e basınca sonraki cümleye geç
+        // Ekran veya Space'e basınca sonraki cümleye geç
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         {
             if (dialogueBox.activeSelf)
