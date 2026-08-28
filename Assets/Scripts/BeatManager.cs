@@ -11,19 +11,15 @@ public class BeatManager : MonoBehaviour
     [Header("Pattern Manager Reference")]
     public PatternManager patternManager;
 
-    [Header("Sprite References")]
-    public Sprite beatBosSprite;
-    public Sprite beat1Sprite;
-    public Sprite beat2Sprite;
-    public Sprite beat3Sprite;
-    public Sprite ekranBosSprite;
-    public Sprite ekranPampumSprite;
+    [Header("Tower Beat Sprites")]
+    public Sprite beatBosSprite; // Hiçbiri yanmayan (Başlangıç/Sıfır durumu)
+    public Sprite beat1Sprite;   // En üstteki göz kırmızı
+    public Sprite beat2Sprite;   // Ortadaki göz kırmızı
+    public Sprite beat3Sprite;   // En alttaki göz kırmızı
+    public Sprite beat4Sprite;   // En alttaki mor ağız/küre aktif (Vuruş anı)
 
-    [Header("UI Image References")]
-    public Image beatImage1;
-    public Image beatImage2;
-    public Image beatImage3;
-    public Image screenImage;
+    [Header("UI Image Reference")]
+    public Image towerBeatImage; // UI'daki tekli kule göstergesi
 
     [Header("Rhythm Settings")]
     public float beatInterval = 0.5f;
@@ -58,25 +54,24 @@ public class BeatManager : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        if (beatImage1 != null) beatImage1.sprite = beatBosSprite;
-        if (beatImage2 != null) beatImage2.sprite = beatBosSprite;
-        if (beatImage3 != null) beatImage3.sprite = beatBosSprite;
-        if (screenImage != null) screenImage.sprite = ekranBosSprite;
+        if (towerBeatImage == null) return;
 
         switch (currentBeat)
         {
             case 1:
-                if (beatImage1 != null) beatImage1.sprite = beat1Sprite;
+                towerBeatImage.sprite = beat1Sprite;
                 break;
             case 2:
-                patternManager.ChargeAllEnemies();
+                towerBeatImage.sprite = beat2Sprite;
                 break;
-
             case 3:
-                patternManager.AttackAllEnemies();
+                towerBeatImage.sprite = beat3Sprite;
                 break;
             case 4:
-                if (screenImage != null) screenImage.sprite = ekranPampumSprite;
+                towerBeatImage.sprite = beat4Sprite;
+                break;
+            default:
+                towerBeatImage.sprite = beatBosSprite;
                 break;
         }
     }
@@ -92,11 +87,11 @@ public class BeatManager : MonoBehaviour
                 break;
 
             case 2:
-                patternManager.ChargeAllEnemies(); // Beat 2: Şarj
+                patternManager.ChargeAllEnemies();
                 break;
 
             case 3:
-                patternManager.AttackAllEnemies(); // Beat 3: BEAM Patlaması
+                patternManager.AttackAllEnemies();
                 break;
 
             case 4:
@@ -111,6 +106,17 @@ public class BeatManager : MonoBehaviour
                     }
                 }
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Gerekirse kuleyi baştan sarmak veya durdurmak için kullanılabilir.
+    /// </summary>
+    public void ResetTowerVisual()
+    {
+        if (towerBeatImage != null)
+        {
+            towerBeatImage.sprite = beatBosSprite;
         }
     }
 }

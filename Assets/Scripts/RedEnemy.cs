@@ -18,9 +18,12 @@ public class RedEnemy : MonoBehaviour
     public float[] rowYPositions = new float[4] { -2.5f, -0.5f, 1.5f, 3.5f };
 
     [Header("Beam Animation Setup")]
-    public SpriteRenderer beamSpriteRenderer; // Ağız/Göz önündeki Sprite Renderer
-    public Sprite[] chargeFrames;            // 6 Karelik Şarj Sprite'ları
-    public Sprite[] attackFrames;            // 8 Karelik BEAM Sprite'ları
+    public SpriteRenderer beamSpriteRenderer; // Beat 2 ve 3'teki şarj/uzama animasyonları için
+    public Sprite[] chargeFrames;            // Şarj Sprite'ları
+    public Sprite[] attackFrames;            // Hazırlık / Uzama Sprite'ları
+
+    [Header("Beat 4 Child Object")]
+    public GameObject beat4BeamObject;      // Beat 4'te açılacak Child GameObject
 
     private Coroutine currentAnimCoroutine;
 
@@ -35,7 +38,7 @@ public class RedEnemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Beat 1: Düşmanı yeni konuma koyar ve ışınları temizler.
+    /// Beat 1: Düşmanı yeni konuma koyar ve tüm görsel nesneleri gizler.
     /// </summary>
     public void SetupPosition(SpawnSide side, int line)
     {
@@ -78,7 +81,7 @@ public class RedEnemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Beat 2: 6 Karelik Şarj Animasyonunu Oynatır
+    /// Beat 2: Şarj ve hazırlık animasyon döngüsünü başlatır.
     /// </summary>
     public void OnBeat_Charge(float beatInterval = 0.5f)
     {
@@ -86,7 +89,6 @@ public class RedEnemy : MonoBehaviour
         {
             beamSpriteRenderer.enabled = true;
 
-            // Eğer animasyon zaten başlamadıysa başlat
             if (currentAnimCoroutine == null)
             {
                 currentAnimCoroutine = StartCoroutine(PlaySeamlessBeamRoutine(beatInterval));
@@ -95,15 +97,15 @@ public class RedEnemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Beat 3: 8 Karelik BEAM Saldırı Animasyonunu Oynatır
+    /// Beat 3: Animasyon coroutine içinden akmaya devam eder.
     /// </summary>
     public void OnBeat_Attack(float beatInterval = 0.5f)
     {
-        // Boş - Zaten PlaySeamlessBeamRoutine kesintisiz oynatıyor.
+        // Beat 2'de başlayan Coroutine akışı devam ettirir.
     }
 
     /// <summary>
-    /// Beat 4: Vuruş kontrolü yapar ve ışını gizler.
+    /// Beat 4: Vuruş kontrolü yapar, şarj animasyonunu kapatıp Beat 4 Child Object'ini aktif eder.
     /// </summary>
     public bool OnBeat4_ExecuteAttack(Vector2Int playerGridPos)
     {
@@ -122,19 +124,11 @@ public class RedEnemy : MonoBehaviour
                 break;
         }
 
-        ResetBeams();
-        return isHit;
-    }
-
-    /// <summary>
-    /// Tüm animasyonları durdurur ve resimleri temizler.
-    /// </summary>
-    public void ResetBeams()
-    {
+        // Önceki animasyonu durdur ve şarj renderer'ını kapat
         if (currentAnimCoroutine != null)
         {
             StopCoroutine(currentAnimCoroutine);
-            currentAnimCoroutine = null; // Hafızayı boşaltıyoruz!
+            currentAnimCoroutine = null;
         }
 
         if (beamSpriteRenderer != null)
@@ -142,67 +136,48 @@ public class RedEnemy : MonoBehaviour
             beamSpriteRenderer.sprite = null;
             beamSpriteRenderer.enabled = false;
         }
-    }
 
-    private void PlayAnimation(Sprite[] frames, float duration)
-    {
-        if (frames == null || frames.Length == 0) return;
-        if (currentAnimCoroutine != null) StopCoroutine(currentAnimCoroutine);
-
-        currentAnimCoroutine = StartCoroutine(AnimateRoutine(frames, duration));
-    }
-
-    private IEnumerator AnimateRoutine(Sprite[] frames, float duration)
-    {
-        float frameTime = duration / frames.Length;
-
-        for (int i = 0; i < frames.Length; i++)
+        // Beat 4 Child Object'ini aç
+        if (beat4BeamObject != null)
         {
-            beamSpriteRenderer.sprite = frames[i];
-            yield return new WaitForSeconds(frameTime);
-        }
-    }
-
-    private IEnumerator PlayFullBeamSequenceRoutine(float beatInterval)
-    {
-        // Beat 2 boyunca Şarj karelerini oynatır
-        if (chargeFrames != null && chargeFrames.Length > 0)
-        {
-            float chargeFrameTime = beatInterval / chargeFrames.Length;
-            for (int i = 0; i < chargeFrames.Length; i++)
-            {
-                beamSpriteRenderer.sprite = chargeFrames[i];
-                yield return new WaitForSeconds(chargeFrameTime);
-            }
+            beat4BeamObject.SetActive(true);
         }
 
-        // Kesintisiz şekilde Beat 3 boyunca BEAM karelerini oynatır
-        if (attackFrames != null && attackFrames.Length > 0)
-        {
-            float attackFrameTime = beatInterval / attackFrames.Length;
-            for (int i = 0; i < attackFrames.Length; i++)
-            {
-                beamSpriteRenderer.sprite = attackFrames[i];
-                yield return new WaitForSeconds(attackFrameTime);
-            }
-        }
-
-        currentAnimCoroutine = null;
+        return isHit;
     }
 
+    /// <summary>
+    /// Tüm animasyonları durdurur ve hem sprite renderer'ı hem de child objeyi gizler.
+    /// </summary>
+    public void ResetBeams()
+    {
+        if (currentAnimCoroutine != null)
+        {
+            StopCoroutine(currentAnimCoroutine);
+            currentAnimCoroutine = null;
+        }
+
+        if (beamSpriteRenderer != null)
+        {
+            beamSpriteRenderer.sprite = null;
+            beamSpriteRenderer.enabled = false;
+        }
+
+        if (beat4BeamObject != null)
+        {
+            beat4BeamObject.SetActive(false);
+        }
+    }
 
     private IEnumerator PlaySeamlessBeamRoutine(float beatInterval)
     {
-        // 1. Şarj ve Saldırı karelerini tek bir dizide birleştiriyoruz
         Sprite[] allFrames = chargeFrames.Concat(attackFrames).ToArray();
 
         if (allFrames.Length == 0) yield break;
 
-        // Toplam süre: Beat 2 + Beat 3 (Toplam 2 Beat süresi)
         float totalDuration = beatInterval * 2f;
         float timePerFrame = totalDuration / allFrames.Length;
 
-        // 2. Arada hiçbir duraksama veya silinme olmadan tek döngüde oynatıyoruz
         for (int i = 0; i < allFrames.Length; i++)
         {
             if (beamSpriteRenderer != null)

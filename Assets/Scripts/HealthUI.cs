@@ -8,11 +8,17 @@ public class HealthUI : MonoBehaviour
     public Image[] heartImages = new Image[3];
 
     [Header("Face Sprites")]
-    public Sprite happyFaceSprite;  // Mutlu Surat Sprite'ı
-    public Sprite deadFaceSprite;   // X_x Surat Sprite'ı
+    public Sprite happyFaceSprite;   // Canlı olduğu anki sabit/düz görsel
+
+    [Header("Dead Animation Settings")]
+    [Tooltip("Can ikonlarının üzerindeki Animator bileşenleri (aynı Image nesnelerindeki).")]
+    public Animator[] heartAnimators = new Animator[3];
+    
+    [Tooltip("Öldüğünde çalışacak animasyon klibinin Animator'daki tam adı")]
+    public string deadAnimationState = "Dead";
 
     /// <summary>
-    /// Can değiştikçe surat görsellerini günceller.
+    /// Can değiştikçe canlı sprite'ı gösterir veya ölü animasyonunu tetikler.
     /// </summary>
     /// <param name="currentHealth">Oyuncunun kalan canı (0 - 3)</param>
     public void UpdateHealthUI(int currentHealth)
@@ -21,14 +27,23 @@ public class HealthUI : MonoBehaviour
         {
             if (heartImages[i] == null) continue;
 
-            // Eğer can indeksimiz kalan candan küçükse 'Mutlu', değilse 'X_x' yapıyoruz
             if (i < currentHealth)
             {
+                // Canlıysa: Animator'ı kapat/durdur ve canlı sprite'ını bas
+                if (heartAnimators[i] != null)
+                {
+                    heartAnimators[i].enabled = false;
+                }
                 heartImages[i].sprite = happyFaceSprite;
             }
             else
             {
-                heartImages[i].sprite = deadFaceSprite;
+                // Öldüyse: Animator'ı aktif et ve ölü animasyonunu oynat
+                if (heartAnimators[i] != null)
+                {
+                    heartAnimators[i].enabled = true;
+                    heartAnimators[i].Play(deadAnimationState, -1, 0f);
+                }
             }
         }
     }
