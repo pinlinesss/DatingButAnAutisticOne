@@ -69,10 +69,11 @@ public class BeatManager : MonoBehaviour
                 if (beatImage1 != null) beatImage1.sprite = beat1Sprite;
                 break;
             case 2:
-                if (beatImage2 != null) beatImage2.sprite = beat2Sprite;
+                patternManager.ChargeAllEnemies();
                 break;
+
             case 3:
-                if (beatImage3 != null) beatImage3.sprite = beat3Sprite;
+                patternManager.AttackAllEnemies();
                 break;
             case 4:
                 if (screenImage != null) screenImage.sprite = ekranPampumSprite;
@@ -87,18 +88,18 @@ public class BeatManager : MonoBehaviour
         switch (currentBeat)
         {
             case 1:
-                // Beat 1: Yeni pattern seçilir, düşmanlar sahneye konur (Işınlar kapalı)
                 patternManager.SpawnRandomPattern();
                 break;
 
             case 2:
+                patternManager.ChargeAllEnemies(); // Beat 2: Şarj
+                break;
+
             case 3:
-                // Beat 2 ve 3: Şarj ışığı yanar
-                patternManager.ChargeAllEnemies();
+                patternManager.AttackAllEnemies(); // Beat 3: BEAM Patlaması
                 break;
 
             case 4:
-                // Beat 4: Saldırı ışını patlar ve vurup vurmadığını kontrol eder
                 if (playerMovement != null)
                 {
                     Vector2Int gridPosition = playerMovement.currentGridPos;

@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class RedEnemy : MonoBehaviour
@@ -15,17 +17,25 @@ public class RedEnemy : MonoBehaviour
     public float[] columnXPositions = new float[4] { -2.5f, -0.5f, 1.5f, 3.5f };
     public float[] rowYPositions = new float[4] { -2.5f, -0.5f, 1.5f, 3.5f };
 
-    [Header("Beam Effects (Visuals)")]
-    public GameObject chargeBeamObject;
-    public GameObject attackBeamObject;
+    [Header("Beam Animation Setup")]
+    public SpriteRenderer beamSpriteRenderer; // Ağız/Göz önündeki Sprite Renderer
+    public Sprite[] chargeFrames;            // 6 Karelik Şarj Sprite'ları
+    public Sprite[] attackFrames;            // 8 Karelik BEAM Sprite'ları
+
+    private Coroutine currentAnimCoroutine;
 
     private void Start()
     {
         ResetBeams();
     }
 
+    private void OnEnable()
+    {
+        ResetBeams();
+    }
+
     /// <summary>
-    /// Beat 1: Düşmanı yeni konuma koyar ve ışınları kapatır.
+    /// Beat 1: Düşmanı yeni konuma koyar ve ışınları temizler.
     /// </summary>
     public void SetupPosition(SpawnSide side, int line)
     {
@@ -57,12 +67,10 @@ public class RedEnemy : MonoBehaviour
 
             case SpawnSide.Left:
                 transform.position = new Vector3(firstX - offsetFromEdge, rowYPositions[lineIndex], 0f);
-                transform.rotation = Quaternion.Euler(0, 0, 90f); // İçe doğru bakar
+                transform.rotation = Quaternion.Euler(0, 0, 90f);
                 break;
 
             case SpawnSide.Right:
-                // DÜZELTME 1: Çıkarma (-) değil Ekleme (+) yapıyoruz ki sağ kenarın DIŞINA çıksın.
-                // DÜZELTME 2: Açıyı 270 veya -90 yerine 90 yapıp yüzünü sola (içe) çeviriyoruz.
                 transform.position = new Vector3(lastX + offsetFromEdge, rowYPositions[lineIndex], 0f);
                 transform.rotation = Quaternion.Euler(0, 0, -90f);
                 break;
@@ -70,22 +78,35 @@ public class RedEnemy : MonoBehaviour
     }
 
     /// <summary>
-    /// Beat 2 ve 3: Şarj ışığını açar
+    /// Beat 2: 6 Karelik Şarj Animasyonunu Oynatır
     /// </summary>
-    public void OnBeat_Charge()
+    public void OnBeat_Charge(float beatInterval = 0.5f)
     {
-        if (chargeBeamObject != null) chargeBeamObject.SetActive(true);
-        if (attackBeamObject != null) attackBeamObject.SetActive(false);
+        if (beamSpriteRenderer != null)
+        {
+            beamSpriteRenderer.enabled = true;
+
+            // Eğer animasyon zaten başlamadıysa başlat
+            if (currentAnimCoroutine == null)
+            {
+                currentAnimCoroutine = StartCoroutine(PlaySeamlessBeamRoutine(beatInterval));
+            }
+        }
     }
 
     /// <summary>
-    /// Beat 4: Saldırı ışınını açar ve vuruş kontrolü yapar
+    /// Beat 3: 8 Karelik BEAM Saldırı Animasyonunu Oynatır
+    /// </summary>
+    public void OnBeat_Attack(float beatInterval = 0.5f)
+    {
+        // Boş - Zaten PlaySeamlessBeamRoutine kesintisiz oynatıyor.
+    }
+
+    /// <summary>
+    /// Beat 4: Vuruş kontrolü yapar ve ışını gizler.
     /// </summary>
     public bool OnBeat4_ExecuteAttack(Vector2Int playerGridPos)
     {
-        if (chargeBeamObject != null) chargeBeamObject.SetActive(false);
-        if (attackBeamObject != null) attackBeamObject.SetActive(true);
-
         bool isHit = false;
 
         switch (currentSide)
@@ -101,15 +122,96 @@ public class RedEnemy : MonoBehaviour
                 break;
         }
 
+        ResetBeams();
         return isHit;
     }
 
     /// <summary>
-    /// Tüm ışınları tamamen kapatır
+    /// Tüm animasyonları durdurur ve resimleri temizler.
     /// </summary>
     public void ResetBeams()
     {
-        if (chargeBeamObject != null) chargeBeamObject.SetActive(false);
-        if (attackBeamObject != null) attackBeamObject.SetActive(false);
+        if (currentAnimCoroutine != null)
+        {
+            StopCoroutine(currentAnimCoroutine);
+            currentAnimCoroutine = null; // Hafızayı boşaltıyoruz!
+        }
+
+        if (beamSpriteRenderer != null)
+        {
+            beamSpriteRenderer.sprite = null;
+            beamSpriteRenderer.enabled = false;
+        }
+    }
+
+    private void PlayAnimation(Sprite[] frames, float duration)
+    {
+        if (frames == null || frames.Length == 0) return;
+        if (currentAnimCoroutine != null) StopCoroutine(currentAnimCoroutine);
+
+        currentAnimCoroutine = StartCoroutine(AnimateRoutine(frames, duration));
+    }
+
+    private IEnumerator AnimateRoutine(Sprite[] frames, float duration)
+    {
+        float frameTime = duration / frames.Length;
+
+        for (int i = 0; i < frames.Length; i++)
+        {
+            beamSpriteRenderer.sprite = frames[i];
+            yield return new WaitForSeconds(frameTime);
+        }
+    }
+
+    private IEnumerator PlayFullBeamSequenceRoutine(float beatInterval)
+    {
+        // Beat 2 boyunca Şarj karelerini oynatır
+        if (chargeFrames != null && chargeFrames.Length > 0)
+        {
+            float chargeFrameTime = beatInterval / chargeFrames.Length;
+            for (int i = 0; i < chargeFrames.Length; i++)
+            {
+                beamSpriteRenderer.sprite = chargeFrames[i];
+                yield return new WaitForSeconds(chargeFrameTime);
+            }
+        }
+
+        // Kesintisiz şekilde Beat 3 boyunca BEAM karelerini oynatır
+        if (attackFrames != null && attackFrames.Length > 0)
+        {
+            float attackFrameTime = beatInterval / attackFrames.Length;
+            for (int i = 0; i < attackFrames.Length; i++)
+            {
+                beamSpriteRenderer.sprite = attackFrames[i];
+                yield return new WaitForSeconds(attackFrameTime);
+            }
+        }
+
+        currentAnimCoroutine = null;
+    }
+
+
+    private IEnumerator PlaySeamlessBeamRoutine(float beatInterval)
+    {
+        // 1. Şarj ve Saldırı karelerini tek bir dizide birleştiriyoruz
+        Sprite[] allFrames = chargeFrames.Concat(attackFrames).ToArray();
+
+        if (allFrames.Length == 0) yield break;
+
+        // Toplam süre: Beat 2 + Beat 3 (Toplam 2 Beat süresi)
+        float totalDuration = beatInterval * 2f;
+        float timePerFrame = totalDuration / allFrames.Length;
+
+        // 2. Arada hiçbir duraksama veya silinme olmadan tek döngüde oynatıyoruz
+        for (int i = 0; i < allFrames.Length; i++)
+        {
+            if (beamSpriteRenderer != null)
+            {
+                beamSpriteRenderer.sprite = allFrames[i];
+            }
+            yield return new WaitForSeconds(timePerFrame);
+        }
+
+        currentAnimCoroutine = null;
     }
 }
